@@ -1,0 +1,13 @@
+.ipynb_checkpoints/
+__pycache__/
+checkpoints/
+datasets/
+logs/
+wordvectors/
+pytreebank/
+swearing_experiments.sh
+log.txt
+learning curve.ipynb
+.floydexpt
+.floydignore
+floyd_requirements.txt
