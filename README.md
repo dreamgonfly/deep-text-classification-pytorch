@@ -8,7 +8,7 @@ PyTorch implementation of deep text classification models including:
 
 ## Requirements
 - Python 3.5+
-- [PyTorch 0.3](pytorch.org)
+- [PyTorch 0.3](http://pytorch.org/)
 - [gensim 3.2](https://github.com/RaRe-Technologies/gensim)
 - [tqdm](https://github.com/tqdm/tqdm)
 - [requests](https://github.com/requests/requests)
