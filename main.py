@@ -27,7 +27,7 @@ torch.manual_seed(0)
 
 # Arguments parser
 parser = argparse.ArgumentParser(description="Deep NLP Models for Text Classification")
-parser.add_argument('--dataset', type=str, default='ag_news', choices=DATASETS)
+parser.add_argument('--dataset', type=str, default='MR', choices=DATASETS)
 parser.add_argument('--use_gpu', type=bool, default=torch.cuda.is_available())
 parser.add_argument('--batch_size', type=int, default=64)
 parser.add_argument('--initial_lr', type=float, default=0.01)
@@ -61,8 +61,9 @@ CharCNN_parser.set_defaults(preprocess_level='char')
 CharCNN_parser.add_argument('--dictionary', type=str, default='CharCNNDictionary', choices=['CharCNNDictionary', 'VDCNNDictionary', 'AllCharDictionary'])
 CharCNN_parser.add_argument('--min_length', type=int, default=1014)
 CharCNN_parser.add_argument('--max_length', type=int, default=1014)
+CharCNN_parser.add_argument('--sort_dataset', action='store_true')
 CharCNN_parser.add_argument('--mode', type=str, default='small')
-CharCNN_parser.add_argument('--epochs', type=int, default=3)
+CharCNN_parser.add_argument('--epochs', type=int, default=10)
 CharCNN_parser.set_defaults(model=CharCNN)
 
 ## VDCNN
@@ -75,8 +76,31 @@ VDCNN_parser.add_argument('--epochs', type=int, default=3)
 VDCNN_parser.add_argument('--depth', type=int, default=29, choices=[9, 17, 29, 49])
 VDCNN_parser.add_argument('--embed_size', type=int, default=16)
 VDCNN_parser.add_argument('--optional_shortcut', type=bool, default=True)
-VDCNN_parser.add_argument('--k', type=int, default=8)
+VDCNN_parser.add_argument('--k', type=int, default=10)
 VDCNN_parser.set_defaults(model=VDCNN)
+
+## QRNN
+QRNN_parser = subparsers.add_parser('QRNN')
+QRNN_parser.add_argument('--preprocess_level', type=str, default='word', choices=['word', 'char'])
+QRNN_parser.add_argument('--dictionary', type=str, default='WordDictionary', choices=['WordDictionary', 'AllCharDictionary'])
+QRNN_parser.add_argument('--max_vocab_size', type=int, default=50000) 
+QRNN_parser.add_argument('--min_count', type=int, default=None)
+QRNN_parser.add_argument('--start_end_tokens', type=bool, default=False)
+group = QRNN_parser.add_mutually_exclusive_group()
+group.add_argument('--vector_size', type=int, default=128)
+group.add_argument('--wordvec_mode', type=str, default=None, choices=['word2vec', 'glove'])
+QRNN_parser.add_argument('--min_length', type=int, default=5)
+QRNN_parser.add_argument('--max_length', type=int, default=300) 
+QRNN_parser.add_argument('--sort_dataset', action='store_true')
+QRNN_parser.add_argument('--hidden_size', type=int, default=300)
+QRNN_parser.add_argument('--num_layers', type=int, default=4)
+QRNN_parser.add_argument('--kernel_size', type=int, default=2)
+QRNN_parser.add_argument('--pooling', type=str, default='fo')
+QRNN_parser.add_argument('--zoneout', type=float, default=0.5)
+QRNN_parser.add_argument('--dropout', type=float, default=0.3)
+QRNN_parser.add_argument('--dense', type=bool, default=True)
+QRNN_parser.add_argument('--epochs', type=int, default=10)
+QRNN_parser.set_defaults(model=QRNN)
 
 args = parser.parse_args()
 
@@ -108,7 +132,7 @@ logger.info("Constructing model...")
 model = args.model(n_classes=preprocessor.n_classes, dictionary=dictionary, args=args)
 if args.use_gpu:
     model = model.cuda() 
-    
+
 logger.info("Training...")
 trainable_params = [p for p in model.parameters() if p.requires_grad]
 if args.optimizer == 'Adam':

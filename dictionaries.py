@@ -151,6 +151,7 @@ class WordDictionary:
     
     def _load_glove(self):
         wordvec_file = 'wordvectors/glove.840B.300d.txt'
+        self.vector_size = 300
         if not exists(wordvec_file):
             raise Exception("You must download word vectors through `download_wordvec.py` first")
 
@@ -158,11 +159,10 @@ class WordDictionary:
         with open(wordvec_file) as file:
             for line in file:
                 line_split = line.split()
-                word = line_split[0]
-                numbers = line_split[1:]
+                word = ' '.join(line_split[:-self.vector_size])
+                numbers = line_split[-self.vector_size:]
                 glove_model[word] = numbers
-        glove_vocab = glove_mode.keys()
-        self.vector_size = len(numbers)
+        glove_vocab = glove_model.keys()
                 
         word_vectors = []
         for word in self.vocab_words:

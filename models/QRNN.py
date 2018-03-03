@@ -24,6 +24,8 @@ class QRNNLayer(nn.Module):
     def forward(self, x):
         
         zero_padding = Variable(torch.zeros(x.size(0), self.input_size, self.kernel_size-1), requires_grad=False)
+        if x.is_cuda:
+            zero_padding = zero_padding.cuda()
         x_padded = torch.cat([zero_padding, x], dim=2)
         
         z = self.tanh(self.conv_z(x_padded))
@@ -37,6 +39,10 @@ class QRNNLayer(nn.Module):
         h_list, c_list = [], []
         h_prev = Variable(torch.zeros(x.size(0), self.hidden_size), requires_grad=False)
         c_prev = Variable(torch.zeros(x.size(0), self.hidden_size), requires_grad=False)
+        if x.is_cuda:
+            h_prev = h_prev.cuda()
+            c_prev = c_prev.cuda()
+            
         for t in range(x.size(2)):
             z_t = z[:, :, t]
             f_t = f[:, :, t]
@@ -70,11 +76,22 @@ class QRNNLayer(nn.Module):
     
 class QRNN(nn.Module):
     
-    def __init__(self, n_classes, vocab_size, embed_size, hidden_size, num_layers=1, kernel_size=2, pooling='fo',
-                 zoneout=0.5, dropout=0.5, dense=True):
+    def __init__(self, n_classes, dictionary, args):
         super(QRNN, self).__init__()
         
+        vocab_size = dictionary.vocabulary_size
+        embed_size = dictionary.vector_size
+        hidden_size = args.hidden_size
+        num_layers = args.num_layers # default : 1
+        kernel_size = args.kernel_size # default : 2
+        pooling =  args.pooling # default : 'fo'
+        zoneout = args.zoneout # default : 0.5
+        dropout = args.dropout # default : 0.3
+        dense =  args.dense # default : True
+        
         self.embedding = nn.Embedding(vocab_size, embed_size)
+        if dictionary.embedding is not None:
+            self.embedding.weight = nn.Parameter(torch.FloatTensor(dictionary.embedding), requires_grad=False)
         self.dropout = nn.Dropout(p=dropout)
         self.dense = dense
         
@@ -109,17 +126,41 @@ class QRNN(nn.Module):
     
 if __name__ == '__main__':
     
-    batch_size = 8
+    import argparse
+
+    QRNN_parser = argparse.ArgumentParser('QRNN')
+    QRNN_parser.add_argument('--batch_size', type=int, default=64)
+#     QRNN_parser.add_argument('--preprocess_level', type=str, default='word', choices=['word', 'char'])
+#     QRNN_parser.add_argument('--dictionary', type=str, default='WordDictionary', choices=['WordDictionary', 'AllCharDictionary'])
+#     QRNN_parser.add_argument('--max_vocab_size', type=int, default=50000) 
+#     QRNN_parser.add_argument('--min_count', type=int, default=None)
+#     QRNN_parser.add_argument('--start_end_tokens', type=bool, default=False)
+#     QRNN_parser.add_argument('--min_length', type=int, default=5)
+#     QRNN_parser.add_argument('--max_length', type=int, default=300) 
+#     QRNN_parser.add_argument('--sort_dataset', action='store_true')
+    QRNN_parser.add_argument('--embed_size', type=int, default=128)
+    QRNN_parser.add_argument('--hidden_size', type=int, default=300)
+    QRNN_parser.add_argument('--num_layers', type=int, default=4)
+    QRNN_parser.add_argument('--kernel_size', type=int, default=2)
+    QRNN_parser.add_argument('--pooling', type=str, default='fo')
+    QRNN_parser.add_argument('--zoneout', type=float, default=0.5)
+    QRNN_parser.add_argument('--dropout', type=float, default=0.3)
+    QRNN_parser.add_argument('--dense', type=bool, default=True)
+    QRNN_parser.add_argument('--epochs', type=int, default=10)
+    QRNN_parser.set_defaults(model=QRNN)
+    
+    class dictionary:
+        vocabulary_size = 10000
+        vector_size = 128
+        embedding = None
+
     seq_len = 231
-    vocab_size = 10000
     n_classes = 2
-    embed_size = 128
-    hidden_size = 300
-    num_layers = 4
+    args = QRNN_parser.parse_args()
     
-    rand_inputs = torch.autograd.Variable(torch.LongTensor(batch_size, seq_len).random_(0, vocab_size))
+    rand_inputs = torch.autograd.Variable(torch.LongTensor(args.batch_size, seq_len).random_(0, dictionary.vocabulary_size))
     
-    model = QRNN(n_classes, vocab_size, embed_size, hidden_size, num_layers)
+    model = QRNN(n_classes, dictionary, args)
     rand_outputs = model(rand_inputs)
     
-    assert rand_outputs.shape == (batch_size, n_classes)
+    assert rand_outputs.shape == (args.batch_size, n_classes)
