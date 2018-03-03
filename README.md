@@ -29,34 +29,34 @@ $ python download_wordvector.py glove
 #### WordCNN
 To train WordCNN with rand mode:
 ```
-$ python main.py --dataset MR --use_gpu WordCNN --mode rand --vector_size 128 --epochs 300
+$ python main.py --dataset MR WordCNN --mode rand --vector_size 128 --epochs 300
 ```
 To train WordCNN with multichannel mode:
 ```
-$ python main.py --dataset MR --use_gpu WordCNN --mode multichannel --wordvec_mode word2vec --epochs 300
+$ python main.py --dataset MR WordCNN --mode multichannel --wordvec_mode word2vec --epochs 300
 ```
 Available modes are `rand`, `static`, `non-static`, and `multichannel`
 
 #### CharCNN
 To train CharCNN with small mode:
 ```
-$ python main.py --dataset MR --use_gpu CharCNN --mode small --epochs 300
+$ python main.py --dataset MR CharCNN --mode small --epochs 300
 ```
 To train CharCNN with large mode:
 ```
-$ python main.py --dataset MR --use_gpu CharCNN --mode large --epochs 300
+$ python main.py --dataset MR CharCNN --mode large --epochs 300
 ```
 
 #### VDCNN
 To train VDCNN with depth = 29:
 ```
-$ python main.py --dataset MR --use_gpu VDCNN --depth 29
+$ python main.py --dataset MR VDCNN --depth 29
 ```
 
 #### QRNN
-To train QRNN with hidden_size = 300:
+To train QRNN with four layers:
 ```
-$ python main.py --dataset MR --use_gpu QRNN --hidden_size 300 --epochs 300
+$ python main.py --dataset MR QRNN --wordvec_mode glove --num_layers 4 --epochs 300
 ```
 
 #### TF-IDF (benchmark)
@@ -74,9 +74,18 @@ Results are reported as follows: **Test accuracy reproduced here (Test accuracy 
 
 To find the settings for experiments, refer to `experiments.sh`.
 
-|                                 |  MR  |     SST_1      |     SST_2      |       ag_news  |     sogu_news     |      db_pedia      | yelp_review_full | yelp_review_polarity | yahoo_answer | amazon_review_full | amazon_review_polarity |
-|:-------------------------------:|:----:|:--------------:|:--------------:|:--------------:|:-----------------:|:------------------:|:--------------------:|:------------------:|:------------:|:------------------:|:----------------------:|
-|WordCNN (rand)                   |      |                |                |    88.3        |                   |                    |           92.5       |                    |              |                    |                        |
+|                                 |      MR     |     SST_1      |     SST_2      |       ag_news  |     sogu_news     |      db_pedia      |   yelp_review_full   | yelp_review_polarity | yahoo_answer | amazon_review_full | amazon_review_polarity |
+|:-------------------------------:|:-----------:|:--------------:|:--------------:|:--------------:|:-----------------:|:------------------:|:--------------------:|:------------------:|:------------:|:------------------:|:----------------------:|
+|WordCNN (rand)                   | 69.4 (76.1) |         (45.0) |         (82.7) |    88.3        |                   |                    |           92.5       |                    |              |                    |                        |
+|WordCNN (static)                 |      (81.0) |         (45.5) |         (86.8) |                |                   |                    |                      |                    |              |                    |                        |
+|WordCNN (non-static)             |      (81.5) |         (48.0) |         (87.2) |                |                   |                    |                      |                    |              |                    |                        |
+|WordCNN (multichannel)           |      (81.1) |         (47.4) |         (88.1) |                |                   |                    |                      |                    |              |                    |                        |
+|CharCNN (small)                  |             |                |                |                |                   |                    |                      |                    |              |                    |                        |
+|CharCNN (large)                  |             |                |                |                |                   |                    |                      |                    |              |                    |                        |
+|VDCNN (29-layers)                |             |                |                |                |                   |                    |                      |                    |              |                    |                        |
+|QRNN (k=2)                       |      (91.4) |                |                |                |                   |                    |                      |                    |              |                    |                        |
+|QRNN (k=4)                       |      (91.1) |                |                |                |                   |                    |                      |                    |              |                    |                        |
+
 
 ## References
 - [Shawn1993's CNNs for Sentence Classification in PyTorch](https://github.com/Shawn1993/cnn-text-classification-pytorch)
