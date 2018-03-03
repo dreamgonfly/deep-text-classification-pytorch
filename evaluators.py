@@ -1,9 +1,3 @@
-import requests
-URL = 'https://hooks.slack.com/services/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'
-def send_message(message, url=URL, channel='#random'):
-    requests.post(url, json={'text': message, 'channel':channel, 'username': 'logging-bot'}, 
-              headers={'Content-Type': 'application/x-www-form-urlencoded'})
-
 from os.path import dirname, abspath, join, exists
 import os
 from datetime import datetime
@@ -40,7 +34,6 @@ class Evaluator():
         
         message = self.base_message.format(test_metric=test_metric)
         self.logger.info(message)
-        send_message(message, channel='#deep-text-classifier')
     
     def accuracy(self, outputs, labels):
         maximum, argmax = outputs.max(dim=1)
