@@ -63,7 +63,7 @@ class AllCharDictionary:
 
     def build_dictionary(self, data):
         all_chars = set(char for text, label in data for char in text)
-        self.vocab_chars = [self.PAD_TOKEN, self.UNK_TOKEN] + list(all_chars)
+        self.vocab_chars = [self.PAD_TOKEN, self.UNK_TOKEN] + list(sorted(all_chars))
         self.char2idx = {char:idx for idx, char in enumerate(self.vocab_chars)}
         self.vocabulary_size = len(self.vocab_chars)
         self.embedding = None
@@ -122,7 +122,7 @@ class WordDictionary:
         
         if self.start_end_tokens: # not necessary for text classification
             vocab_words += ['<SOS>', '<EOS>']
-        vocab_words += list(counter.keys())
+        vocab_words += list(sorted(counter.keys()))
         
         word2idx = {word:idx for idx, word in enumerate(vocab_words)}
         idx2word = vocab_words # instead of {idx:word for idx, word in enumerate(vocab_words)}

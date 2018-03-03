@@ -1,9 +1,3 @@
-import requests
-URL = 'https://hooks.slack.com/services/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'
-def send_message(message, url=URL, channel='#random'):
-    requests.post(url, json={'text': message, 'channel':channel, 'username': 'logging-bot'}, 
-              headers={'Content-Type': 'application/x-www-form-urlencoded'})
-
 import argparse
 from os.path import dirname, abspath, join, exists
 import os
@@ -26,6 +20,10 @@ from models.VDCNN import VDCNN
 from models.QRNN import QRNN
 
 import utils
+
+# Random seed
+np.random.seed(0)
+torch.manual_seed(0)
 
 # Arguments parser
 parser = argparse.ArgumentParser(description="Deep NLP Models for Text Classification")
@@ -87,14 +85,7 @@ model_name = args.model.__name__
 logger = utils.get_logger(model_name)
 
 logger.info('Arguments: {}'.format(args))
-send_message('Arguments: {}'.format(args), channel='#deep-text-classifier')
 
-# Random seed
-from random import seed
-seed(0)
-np.random.seed(0)
-torch.manual_seed(0)
-    
 logger.info("Preprocessing...")
 Preprocessor = DATASET_TO_PREPROCESSOR[args.dataset]
 preprocessor = Preprocessor(args.dataset)
@@ -134,7 +125,6 @@ trainer.run(epochs=args.epochs)
 
 logger.info("Evaluating...")
 logger.info('Best Model: {}'.format(trainer.best_checkpoint_filepath))
-send_message('Best Model: {}'.format(trainer.best_checkpoint_filepath), channel='#deep-text-classifier')
 model.load_state_dict(torch.load(trainer.best_checkpoint_filepath)) # load best model
 evaluator = Evaluator(model, test_dataloader, use_gpu=args.use_gpu, logger=logger)
 evaluator.evaluate()
