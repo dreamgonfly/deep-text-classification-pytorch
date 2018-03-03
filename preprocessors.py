@@ -165,40 +165,7 @@ class SSTPreprocessor:
         elif label < 2:
             return 0
         else: # label == 2
-            return None    
-    
-class SwearingPreprocessor:
-    
-    def __init__(self, dataset):
-        # TODO : from two sources
-        # TODO : make it able to specify dataset mount point (other than input)
-        self.dataset_file = '/input/swearing_dataset.csv'
-#         self.dataset_file = 'datasets/bf_swearing/swearing_dataset.csv'
-        self.n_classes = 2
-       
-    def preprocess(self, level='char'):
-        
-        data = (pd.read_csv(self.dataset_file)
-                .assign(text=lambda x: x.cleaned_chat)
-               )
-        data_list = self._dataframe_to_data(data, level)
-        
-        # TODO : can change test_size
-        
-        train_data, test_data = train_test_split(data_list, test_size=0.1)
-        train_data, val_data = train_test_split(train_data, test_size=0.1)
-        
-        return train_data, val_data, test_data
-        
-    @staticmethod
-    def _dataframe_to_data(dataframe, level):
-        dataframe = dataframe.dropna(subset=['text', 'label'])
-        if level == 'word':
-            dataframe = dataframe.assign(text=lambda df: df['text'].map(lambda text: text.split()))
-        elif level == 'char':
-            pass
-        data = [(text, int(label)) for text, label in zip(dataframe['text'], dataframe['label'])]
-        return data
+            return None
         
 DATASET_TO_PREPROCESSOR = {'ag_news': CSVPreprocessor,
             'amazon_review_full': CSVPreprocessor,
@@ -211,5 +178,4 @@ DATASET_TO_PREPROCESSOR = {'ag_news': CSVPreprocessor,
             'MR': MRPreprocessor,
             'SST-1': lambda dataset: SSTPreprocessor('SST', binary=False),
             'SST-2': lambda dataset: SSTPreprocessor('SST', binary=True),
-            'BFSW': SwearingPreprocessor,
            }

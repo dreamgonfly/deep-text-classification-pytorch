@@ -8,18 +8,17 @@ from zipfile import ZipFile
 
 import utils
 
-DATASETS = ['amazon_review_full',
- 'yelp_review_polarity',
- 'yahoo_answers',
- 'dbpedia',
- 'ag_news',
- 'yelp_review_full',
- 'amazon_review_polarity',
- 'sogou_news',
- 'MR',
- 'SST-1',
- 'SST-2',
- 'BFSW',]
+DATASETS = ['MR',
+            'SST-1',
+            'SST-2',
+            'ag_news',
+            'sogou_news',
+            'dbpedia',
+            'yelp_review_full',
+            'yelp_review_polarity',
+            'yahoo_answers',
+            'amazon_review_full',
+            'amazon_review_polarity']
 
 BASE_DIR = dirname(abspath(__file__))
 DATA_DIR = join(BASE_DIR, 'datasets')
