@@ -53,7 +53,26 @@ def download_from_google_drive(dataset):
     destination = join(DATA_DIR, download_file)
     utils.download_file_from_google_drive(file_id, destination)
     with tarfile.open(destination, "r:gz") as tar:
-        tar.extractall(DATA_DIR)
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, DATA_DIR)
 
 def download_mr():
     dataset_dirname = 'MR'
@@ -65,7 +84,26 @@ def download_mr():
     tar_filepath = join(DATA_DIR, dataset_dir, tar_file)
     urllib.request.urlretrieve(dataset_url, filename=tar_filepath)
     with tarfile.open(tar_filepath, "r") as tar:
-        tar.extractall(dataset_dir)
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, dataset_dir)
         
 def download_sst():
     # from https://nlp.stanford.edu/sentiment/
